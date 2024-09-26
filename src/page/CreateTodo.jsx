@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 
 function CreateTodo() {
@@ -7,14 +8,30 @@ function CreateTodo() {
   const [Priority, SetPriority] = useState("");
   const [Due, SetDue] = useState("");
   //   const [Status, SetStatus] = useState(false);
-  function SubmitHandler(e) {
+  async function SubmitHandler(e) {
     e.preventDefault();
-    console.log("working");
-    let previousTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-    previousTasks.push({ Title, Description, Priority, Due, Status: false });
 
-    localStorage.setItem("tasks", JSON.stringify(previousTasks));
-    console.log(previousTasks);
+    try {
+      let res = await axios.post(
+        "https://taskmanager-backend-q1kf.onrender.com/create",
+        {
+          Title,
+          Description,
+          Priority,
+          Due,
+          Status: false,
+        }
+      );
+      console.log(res);
+      console.log("working");
+      let previousTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+      previousTasks.push({ Title, Description, Priority, Due, Status: false });
+
+      localStorage.setItem("tasks", JSON.stringify(previousTasks));
+      console.log(previousTasks);
+    } catch (e) {
+      console.log(e);
+    }
   }
   return (
     <div className="flex flex-col items-center my-20 gap-y-12">

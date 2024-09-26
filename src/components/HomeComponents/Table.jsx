@@ -1,21 +1,44 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 
 function Table() {
-  const [Tasks, SetTasks] = useState([]);
+  const [AllTasks, SetTasks] = useState([]);
   useEffect(() => {
-    let AllTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-    SetTasks(AllTasks);
-    console.log(JSON.parse(localStorage.getItem("tasks"))[0]);
+    async function fetch() {
+      try {
+        let data = await axios.get(
+          "https://taskmanager-backend-q1kf.onrender.com/tasks"
+        );
+        JSON.stringify(localStorage.setItem("tasks", data.data) || "[]");
+        console.log(data.data);
+        SetTasks(data.data);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    fetch();
   }, []);
-  function Completion(index) {
-    let AllTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-    AllTasks[index].Status = true;
-    localStorage.setItem("tasks", JSON.stringify(AllTasks));
+  async function Completion(index, id) {
+    try {
+      let res = await axios.post(
+        "https://taskmanager-backend-q1kf.onrender.com/mark",
+        { id }
+      );
+      console.log(res);
+      let data = await axios.get(
+        "https://taskmanager-backend-q1kf.onrender.com/tasks"
+      );
+      JSON.stringify(localStorage.setItem("tasks", data.data) || "[]");
+      console.log(data.data);
+      SetTasks(data.data);
+    } catch (e) {
+      console.log(e);
+    }
   }
   return (
     <div className="relative w-11/12 mx-auto">
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 table-auto">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <thead className="text-xs text-gray-700 uppercase  dark:bg-gray-700 dark:text-gray-400">
           <tr>
             <th scope="col" className="px-6 py-3">
               Serial No.
@@ -41,40 +64,35 @@ function Table() {
           </tr>
         </thead>
         <tbody>
-          {Tasks.map((index, Task) => {
+          {AllTasks.map((Task, index) => (
             <tr
               key={index}
               className="text-black border-b dark:bg-white dark:border-black-700"
             >
-              <div>{index}</div>
               <td className="px-6 py-4">{index + 1}</td>
-
               <td className="px-6 py-4">{Task.Title}</td>
-
               <td className="px-6 py-4">{Task.Description}</td>
               <td className="px-6 py-4">
-                {Task.Priority == "1"
+                {Task.Priority === "1"
                   ? "Low"
-                  : Task.Priority == "2"
+                  : Task.Priority === "2"
                   ? "Medium"
                   : "High"}
               </td>
               <td className="px-6 py-4">{Task.Due}</td>
-
               <td className="px-6 py-4">
-                {Task.Due ? "Completed" : "Pending"}
+                {Task.Status ? "Completed" : "Pending"}
               </td>
-
               <td className="px-6 py-4">
                 <button
-                  onClick={Completion}
+                  onClick={() => Completion(index, Task._id)}
                   className="bg-blue-500 hover:bg-blue-700 opacity-90 text-white font-bold py-2 px-3 rounded"
                 >
                   Done
-                </button>{" "}
+                </button>
               </td>
-            </tr>;
-          })}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
