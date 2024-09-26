@@ -6,12 +6,15 @@ function CreateTodo() {
 
   const [Description, SetDescription] = useState("");
   const [Priority, SetPriority] = useState("");
+
+  const [Loading, SetLoading] = useState(false);
   const [Due, SetDue] = useState("");
   //   const [Status, SetStatus] = useState(false);
   async function SubmitHandler(e) {
     e.preventDefault();
 
     try {
+      SetLoading(true);
       let res = await axios.post(
         "https://taskmanager-backend-q1kf.onrender.com/create",
         {
@@ -26,17 +29,27 @@ function CreateTodo() {
       console.log("working");
       let previousTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
       previousTasks.push({ Title, Description, Priority, Due, Status: false });
-
+      alert("Task added Successfully");
       localStorage.setItem("tasks", JSON.stringify(previousTasks));
       console.log(previousTasks);
     } catch (e) {
       console.log(e);
+    } finally {
+      alert("Your task added successfully");
+      SetLoading(false);
     }
   }
   return (
-    <div className="flex flex-col items-center my-20 gap-y-12">
+    <div className={`flex flex-col items-center my-20 gap-y-12 `}>
       <h1 className="font-black text-xl">Create Your Task</h1>
-      <div className="w-full max-w-xl">
+      {Loading ? (
+        <div className="mx-auto text-center text-red-500 font-semibold text-xl">
+          Please wait we are adding your task
+        </div>
+      ) : (
+        ""
+      )}
+      <div className={`w-full max-w-xl ${Loading ? "opacity-60" : "null"}`}>
         <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -44,7 +57,7 @@ function CreateTodo() {
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Username"
+              placeholder="Title"
               value={Title}
               onChange={(e) => SetTitle(e.target.value)}
             />
@@ -55,7 +68,7 @@ function CreateTodo() {
             </label>
             <textarea
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Username"
+              placeholder="Description"
               value={Description}
               onChange={(e) => SetDescription(e.target.value)}
             />
@@ -68,6 +81,7 @@ function CreateTodo() {
               name=""
               id=""
               value={Priority}
+              placeholder="priority"
               onChange={(e) => SetPriority(e.target.value)}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             >
@@ -83,7 +97,7 @@ function CreateTodo() {
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Username"
+              placeholder="Due date"
               type="date"
               value={Due}
               onChange={(e) => SetDue(e.target.value)}

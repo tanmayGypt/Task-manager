@@ -71,7 +71,9 @@ function Table() {
           {AllTasks.map((Task, index) => (
             <tr
               key={index}
-              className="text-black border-b dark:bg-white dark:border-black-700"
+              className={`text-black border-b  dark:border-black-700 ${
+                Task.Status ? "dark:bg-green-300" : "dark:bg-red-300"
+              }`}
             >
               <td className="px-6 py-4">{index + 1}</td>
               <td className="px-6 py-4">{Task.Title}</td>
