@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 function CreateTodo() {
   const [Title, SetTitle] = useState("");
@@ -40,7 +41,9 @@ function CreateTodo() {
     }
   }
   return (
-    <div className={`flex flex-col items-center my-20 gap-y-12 `}>
+    <div
+      className={`flex flex-col items-center my-20 gap-y-12 justify-center `}
+    >
       <h1 className="font-black text-xl">Create Your Task</h1>
       {Loading ? (
         <div className="mx-auto text-center text-red-500 font-semibold text-xl">
@@ -49,7 +52,14 @@ function CreateTodo() {
       ) : (
         ""
       )}
-      <div className={`w-full max-w-xl ${Loading ? "opacity-60" : "null"}`}>
+      <div className={`w-full max-w-xl ${Loading ? "opacity-60" : ""}`}>
+        <Link
+          className="text-white bg-blue-700 hover:bg-blue-800  py-2 px-4 rounded border-black mx-auto"
+          to="/"
+        >
+          Go to Dashboard
+        </Link>
+
         <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
