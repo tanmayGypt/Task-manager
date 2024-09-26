@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 function Table() {
   const [AllTasks, SetTasks] = useState([]);
@@ -18,11 +19,14 @@ function Table() {
     }
     fetch();
   }, []);
-  async function Completion(index, id) {
+  async function Completion(index, id, Status) {
     try {
       let res = await axios.post(
         "https://taskmanager-backend-q1kf.onrender.com/mark",
-        { id }
+        {
+          id,
+          Status: !Status,
+        }
       );
       console.log(res);
       let data = await axios.get(
@@ -85,10 +89,10 @@ function Table() {
               </td>
               <td className="px-6 py-4">
                 <button
-                  onClick={() => Completion(index, Task._id)}
+                  onClick={() => Completion(index, Task._id, Task.Status)}
                   className="bg-blue-500 hover:bg-blue-700 opacity-90 text-white font-bold py-2 px-3 rounded"
                 >
-                  Done
+                  {Task.Status ? "Mark Pending" : "Mark Complete"}
                 </button>
               </td>
             </tr>
