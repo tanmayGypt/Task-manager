@@ -1,67 +1,80 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-function CreateTodo() {
+function UpdateTodo({ task, onUpdate, SetUpdating }) {
   const [Title, SetTitle] = useState("");
-
   const [Description, SetDescription] = useState("");
   const [Priority, SetPriority] = useState("");
-
   const [Loading, SetLoading] = useState(false);
   const [Due, SetDue] = useState("");
-  //   const [Status, SetStatus] = useState(false);
+  const [Status, SetStatus] = useState(false);
+
+  // Prefill the form with the current task data
+  useEffect(() => {
+    if (task) {
+      SetTitle(task.Title);
+      SetDescription(task.Description);
+      SetPriority(task.Priority);
+      SetDue(task.Due);
+      SetStatus(task.Status);
+    }
+  }, [task]);
 
   async function SubmitHandler(e) {
     e.preventDefault();
 
     try {
       SetLoading(true);
-      let res = await axios.post(
-        "https://taskmanager-backend-q1kf.onrender.com/create",
+      const res = await axios.post(
+        "https://taskmanager-backend-q1kf.onrender.com/update",
         {
+          id: task._id,
           Title,
           Description,
           Priority,
           Due,
-          Status: false,
+          Status,
         }
       );
-      console.log(res);
-      console.log("working");
-      let previousTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-      previousTasks.push({ Title, Description, Priority, Due, Status: false });
-      alert("Task added Successfully");
-      localStorage.setItem("tasks", JSON.stringify(previousTasks));
-      console.log(previousTasks);
+      console.log(res.data);
+      alert("Task updated successfully");
+
+      // Update the task list after successful update
+      if (onUpdate) {
+        onUpdate(res.data);
+      }
     } catch (e) {
       console.log(e);
+      alert("Failed to update task");
     } finally {
-      alert("Your task added successfully");
       SetLoading(false);
+      SetUpdating(false);
     }
   }
+
   return (
-    <div
-      className={`flex flex-col items-center my-20 gap-y-12 justify-center `}
-    >
-      <h1 className="font-black text-xl">Create Your Task</h1>
+    <div className={`flex flex-col items-center my-20 gap-y-12 justify-center`}>
+      <h1 className="font-black text-xl">Update Your Task</h1>
       {Loading ? (
         <div className="mx-auto text-center text-red-500 font-semibold text-xl">
-          Please wait we are adding your task
+          Please wait, updating your task...
         </div>
       ) : (
         ""
       )}
       <div className={`w-full max-w-xl ${Loading ? "opacity-60" : ""}`}>
         <Link
-          className="text-white bg-blue-700 hover:bg-blue-800  py-2 px-4 rounded border-black mx-auto"
-          to="/"
+          className="text-white bg-blue-700 hover:bg-blue-800 py-2 px-4 rounded border-black mx-auto"
+          onClick={() => SetUpdating(false)}
         >
           Go to Dashboard
         </Link>
 
-        <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <form
+          className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+          onSubmit={SubmitHandler}
+        >
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
               Title
@@ -86,13 +99,10 @@ function CreateTodo() {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              priority
+              Priority
             </label>
             <select
-              name=""
-              id=""
               value={Priority}
-              placeholder="priority"
               onChange={(e) => SetPriority(e.target.value)}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             >
@@ -108,20 +118,33 @@ function CreateTodo() {
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Due date"
               type="date"
               value={Due}
               onChange={(e) => SetDue(e.target.value)}
             />
           </div>
 
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Status
+            </label>
+            <select
+              value={Status}
+              onChange={(e) => SetStatus(e.target.value === "true")}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            >
+              <option value="true">Completed</option>
+              <option value="false">Pending</option>
+            </select>
+          </div>
+
           <div className="flex items-center justify-between">
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
-              type="button"
-              onClick={(e) => SubmitHandler(e)}
+              type="submit"
+              disabled={Loading}
             >
-              Add Task
+              {Loading ? "Updating..." : "Update Task"}
             </button>
           </div>
         </form>
@@ -130,4 +153,4 @@ function CreateTodo() {
   );
 }
 
-export default CreateTodo;
+export default UpdateTodo;
